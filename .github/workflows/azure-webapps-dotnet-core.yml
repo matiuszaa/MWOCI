@@ -63,8 +63,7 @@ jobs:
     needs: build
     environment:
       name: 'Dev'
-      url: ${{ secrets.WEB_APP_URL }}
-
+      url: ${{ steps.deploy-to-azure.outputs.webapp-url }}
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v3.0.0
