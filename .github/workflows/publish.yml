@@ -1,0 +1,45 @@
+name: CD_deploy
+
+on:
+  push:
+    branches: [master]
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup.NET Core SDK
+        uses: actions/setup-dotnet@v2.1.0
+        with:
+          dotnet-version: 6.0.100
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+      - name: Publish
+        run: dotnet publish ./WebApplication1/WebApplication1.csproj -c Release -o ${{ env.DOTNET_ROOT }}/api
+      - name: upload artifact
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          name: personsApi-artifact
+          path: ${{ env.DOTNET_ROOT }}/api
+  deploy-dev:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: 'Dev'
+      url: ${{ secrets.WEB_APP_URL }}
+    steps:
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v3.0.0
+        with:
+          name: personApi-artifact
+      - name: Azure Webapp
+        id: deploy-to-azure
+        uses: Azure/webapps-deploy@v2
+        with:
+          app-name: 'MWOO'
+          publish-profile: ${{ secrets.PUBLISH_PROFILE }}
+          
+    
