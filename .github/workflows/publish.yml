@@ -2,7 +2,7 @@ name: CD_deploy
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     
 jobs:
   build:
